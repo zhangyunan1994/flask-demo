@@ -1,4 +1,6 @@
 import configparser
+import os
+import sys
 
 
 class Server:
@@ -15,17 +17,18 @@ class Database:
     Password: str
     Host: str
     Name: str
+    Port: int
 
-    def __init__(self, host: str, user: str, password: str, database: str) -> None:
+    def __init__(self, host: str, port: int, user: str, password: str, database: str) -> None:
         self.Host = host
         self.User = user
         self.Password = password
         self.Name = database
+        self.Port = port
 
 
 cfg = configparser.ConfigParser()
-
-cfg.read('conf/app.ini')
+cfg.read(sys.path[0] + '/conf/app.ini')
 
 
 def get_dict(section: str) -> dict:
@@ -42,11 +45,12 @@ def get_server_info() -> Server:
 
 def get_database_info(env: str) -> Database:
     info = get_dict("database_" + env)
-    return Database(info.get('host'), info.get('user'), info.get('password'), info.get('name'))
+    return Database(info.get('host'), info.get('port'), info.get('user'), info.get('password'), info.get('name'))
 
 
 if __name__ == '__main__':
     print(cfg.items("server"))
     print(get_dict("server"))
     print(get_server_info().HttpPort)
-    print(get_database_info("test").Host)
+    print(get_database_info("dev").Host)
+    print(get_database_info("dev").Port)

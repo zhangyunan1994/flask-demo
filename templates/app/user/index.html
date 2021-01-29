@@ -1,0 +1,49 @@
+<ol class="breadcrumb">
+    <li>用户管理</li>
+    <li class="active">用户管理</li>
+</ol>
+<form class="form-inline">
+    <div class="form-group">
+        <label class="sr-only" for="filterText">搜一搜</label>
+        <input class="form-control" id="filterText" placeholder="用户名或者昵称">
+    </div>
+    <button type="button" class="btn btn-default" id="userSearchBtn">查询</button>
+</form>
+
+<table class="table table-bordered">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>昵称</th>
+        <th>用户名</th>
+        <th>密码</th>
+        <th>创建时间</th>
+    </tr>
+    </thead>
+    <tbody id="userData">
+    </tbody>
+</table>
+
+<script>
+    $("#userSearchBtn").unbind("click").bind("click", function () {
+
+        $.ajax({
+            url: '/app/user/list?filterText=' + $("#filterText").val(),
+            type: 'GET',
+            dataType: "json",
+            success: function (data) {
+                let html = "";
+                for(let user of data) {
+                    html += "<tr>" +
+                        "<th scope='row'>" + user.id + "</th>" +
+                        "<td>" + user.nickname + "</td>" +
+                        "<td>" + user.username + "</td>" +
+                        "<td>" + user.password + "</td>" +
+                        "<td>" + user.create_time + "</td>" +
+                        "</tr>"
+                }
+                $("#userData").html(html);
+            }
+        })
+    })
+</script>

@@ -1,9 +1,21 @@
-from flask import Flask, render_template
+from flask import Flask, session, render_template, request
 from flask_cors import *
+from config import *
+from models.models import User
+from exts.exts import db
+from views.user_manager import user_manager
 
+
+database_config = get_database_info("dev")
+server_info = get_server_info()
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
+
+app.secret_key = b'_5#y2L"F4Q8z/'
+app.config["SQLALCHEMY_DATABASE_URI"] = f'mysql+pymysql://{ database_config.User }:{database_config.Password}@{database_config.Host}:{database_config.Port}/{database_config.Name}'
+app.register_blueprint(user_manager)
+db.init_app(app)
 
 
 @app.route('/')
@@ -12,11 +24,44 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/login')
-def login():
-    # 此处应该判断一下，如果已经登录，就不要跳到登录页面了
+@app.route('/toLogin')
+def login_layer():
+    if 'current_user_id' in session:
+        return render_template('app/index.html', nickname=session['current_user_nickname'])
     return render_template('login.html')
 
+
+@app.route('/login', methods=['POST'])
+def login():
+    param = request.get_json()
+    print(param)
+    user = User.query.filter_by(username=param['username']).filter(User.password == param['password']).first()
+    status = 1
+    message = ""
+    if user:
+        session['current_user_id'] = user.id
+        session['current_user_nickname'] = user.nickname
+    else:
+        status = 404
+        message = '用户名或者密码错误'
+    return {
+        'status': status,
+        'message': message
+    }
+
+
+@app.route('/logout')
+def logout():
+    if 'current_user_id' in session:
+        session.clear()
+    return render_template('index.html')
+
+
+@app.route('/app/index')
+def app_index_layer():
+    if 'current_user_id' in session:
+        return render_template('app/index.html', nickname=session['current_user_nickname'])
+    return render_template('login.html')
 
 if __name__ == '__main__':
     app.run(port=11000, debug=True)
