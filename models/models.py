@@ -86,6 +86,17 @@ class Movie(db.Model):
     name = db.Column(db.String, nullable=False)
     create_time = db.Column(db.DateTime, nullable=False)
 
+    def add(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def modify(self):
+        schema = MovieSchema()
+        data = schema.dump(self)
+        remove_none_key(data)
+        db.session.query(Movie).filter(Movie.id == self.id).update(data)
+        db.session.commit()
+
 
 class MovieSchema(Schema):
     id = fields.Int()
