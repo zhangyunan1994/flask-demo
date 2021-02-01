@@ -8,38 +8,203 @@
         <input class="form-control" id="filterText" placeholder="用户名或者昵称">
     </div>
     <button type="button" class="btn btn-default" id="userSearchBtn">查询</button>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">添加</button>
 </form>
 
-<table class="table table-bordered">
+<table class="table table-bordered" style="margin-top: 5px">
     <thead>
     <tr>
         <th>#</th>
         <th>昵称</th>
         <th>用户名</th>
         <th>密码</th>
+        <th>状态</th>
         <th>创建时间</th>
+        <th>操作</th>
     </tr>
     </thead>
     <tbody id="userData">
     </tbody>
 </table>
 
-<script>
-    $("#userSearchBtn").unbind("click").bind("click", function () {
+<!-- Add User Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">添加用户</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="nickname" class="col-sm-2 control-label">nickname</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="nickname" placeholder="nickname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="username" class="col-sm-2 control-label">username</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="username" placeholder="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-2 control-label">password</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="password" placeholder="password">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="addUserBtn">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Modify User Modal -->
+<div class="modal fade" id="modifyUserModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="exampleModalLabel">修改</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input id="m_id" class="hidden"/>
+
+                    <div class="form-group">
+                        <label for="m_nickname" class="col-sm-2 control-label">nickname</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="m_nickname" placeholder="nickname">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="m_username" class="col-sm-2 control-label">username</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="m_username" placeholder="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="m_password" class="col-sm-2 control-label">password</label>
+                        <div class="col-sm-10">
+                            <input class="form-control" id="m_password" placeholder="password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="m_status" class="col-sm-2 control-label">状态</label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="m_status">
+                                <option value="1">启用</option>
+                                <option value="2">禁用</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="modifyUserBtn">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#myModal').on('show.bs.modal', function (event) {
+        $("#myModal input").val("")
+    })
+
+    $('#addUserBtn').click(function () {
+        let username = $("#username").val()
+        let password = $("#password").val()
+        let nickname = $("#nickname").val()
+        $.ajax({
+            url: '/app/user/add',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({"username": username, "password": password, "nickname": nickname}),
+            dataType: "json",
+            success: function (data) {
+                $('#modifyUserModel').modal('toggle')
+                $('#userSearchBtn').trigger('click')
+            },
+            error: function (resp) {
+                alert(resp.responseJSON.msg)
+            }
+        })
+    })
+
+    $('#modifyUserBtn').click(function () {
+
+        let username = $("#m_username").val()
+        let password = $("#m_password").val()
+        let nickname = $("#m_nickname").val()
+        let status = $("#m_status").val()
+        let id = $("#m_id").val()
+
+        $.ajax({
+            url: '/app/user/modify',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                "username": username,
+                "password": password,
+                "nickname": nickname,
+                "id": parseInt(id),
+                "status": status
+            }),
+            dataType: "json",
+            success: function (data) {
+                $('#modifyUserModel').modal('toggle')
+                $('#userSearchBtn').trigger('click')
+            },
+            error: function (resp) {
+                alert(resp.responseJSON.msg)
+            }
+        })
+    })
+
+    $('#modifyUserModel').on('show.bs.modal', function (event) {
+        let button = $(event.relatedTarget)
+        let id = button.data("id")
+        $.ajax({
+            url: '/app/user/detail/' + id,
+            type: 'GET',
+            dataType: "json",
+            success: function (data) {
+                $("#m_nickname").val(data.nickname)
+                $("#m_username").val(data.username)
+                $("#m_password").val(data.password)
+                $("#m_status").val(data.status)
+                $("#m_id").val(data.id)
+            }
+        })
+    })
+
+    $("#userSearchBtn").unbind("click").bind("click", function () {
         $.ajax({
             url: '/app/user/list?filterText=' + $("#filterText").val(),
             type: 'GET',
             dataType: "json",
             success: function (data) {
                 let html = "";
-                for(let user of data) {
+                for (let user of data) {
+                    let status = user.status === 1 ? "启用" : "禁用"
                     html += "<tr>" +
                         "<th scope='row'>" + user.id + "</th>" +
                         "<td>" + user.nickname + "</td>" +
                         "<td>" + user.username + "</td>" +
                         "<td>" + user.password + "</td>" +
+                        "<td>" + status + "</td>" +
                         "<td>" + user.create_time + "</td>" +
+                        "<td> <button class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#modifyUserModel\" data-id=" + user.id + ">修改</button></td>" +
                         "</tr>"
                 }
                 $("#userData").html(html);
