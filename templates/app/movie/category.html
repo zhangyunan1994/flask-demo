@@ -1,49 +1,192 @@
-<ol class="breadcrumb">
-    <li>用户管理</li>
-    <li class="active">用户管理</li>
-</ol>
-<form class="form-inline">
-    <div class="form-group">
-        <label class="sr-only" for="filterText">搜一搜</label>
-        <input class="form-control" id="filterText" placeholder="用户名或者昵称">
+{% extends "app/layout.html" %}
+{% block content %}
+    <div class="container" id="app">
+
+        <ol class="breadcrumb">
+            <li>影片管理</li>
+            <li class="active">分类管理</li>
+        </ol>
+        <form class="form-inline">
+            <div class="form-group">
+                <label class="sr-only" for="filterText">搜一搜</label>
+                <input class="form-control" v-model="filterText" placeholder="名称">
+            </div>
+            <button type="button" class="btn btn-default" @click="search">查询</button>
+            <button type="button" class="btn btn-default" @click="categoryName = ''" data-toggle="modal"
+                    data-target="#myModal">添加
+            </button>
+        </form>
+
+        <table class="table table-bordered" style="margin-top: 5px">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>分类名称</th>
+                <th>创建时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="item in categories">
+                <td> ${ item.id }</td>
+                <td> ${ item.name }</td>
+                <td> ${ item.create_time }</td>
+                <td>
+                    <button class="btn btn-primary" @click="modifyCategoryInfo = item" data-toggle="modal"
+                            data-target="#modifyModel"> 编辑
+                    </button>
+                    |
+                    <button class="btn btn-danger" @click="deleteCategoryInfo(item.id)"> 删除</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <!-- Add Category Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="myModalLabel">添加分类</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="categoryName" class="col-sm-2 control-label">分类名称</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" id="categoryName" v-model="categoryName"
+                                           placeholder="categoryName">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" v-on:click="addCategory">添加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modify User Modal -->
+        <div class="modal fade" id="modifyModel" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="exampleModalLabel">修改</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">分类名称</label>
+                                <div class="col-sm-10">
+                                    <input class="form-control" v-model="modifyCategoryInfo.name" placeholder="分类名称">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" @click="modifyCategory">确认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="button" class="btn btn-default" id="userSearchBtn">查询</button>
-</form>
-
-<table class="table table-bordered">
-    <thead>
-    <tr>
-        <th>#</th>
-        <th>昵称</th>
-        <th>用户名</th>
-        <th>密码</th>
-        <th>创建时间</th>
-    </tr>
-    </thead>
-    <tbody id="userData">
-    </tbody>
-</table>
-
-<script>
-    $("#userSearchBtn").unbind("click").bind("click", function () {
-
-        $.ajax({
-            url: '/app/user/list?filterText=' + $("#filterText").val(),
-            type: 'GET',
-            dataType: "json",
-            success: function (data) {
-                let html = "";
-                for(let user of data) {
-                    html += "<tr>" +
-                        "<th scope='row'>" + user.id + "</th>" +
-                        "<td>" + user.nickname + "</td>" +
-                        "<td>" + user.username + "</td>" +
-                        "<td>" + user.password + "</td>" +
-                        "<td>" + user.create_time + "</td>" +
-                        "</tr>"
+    <script>
+        const app = Vue.createApp({
+            el: '#app',
+            delimiters: ['${', '}'],
+            data: function () {
+                return {
+                    categories: [],
+                    filterText: '',
+                    categoryName: '',
+                    modifyCategoryInfo: {}
                 }
-                $("#userData").html(html);
+            },
+            mounted: function () {
+                this.search()
+            },
+            methods: {
+                search: function () {
+                    let _that = this
+                    $.ajax({
+                        url: '/app/movie/category/list?filterText=' + this.filterText,
+                        type: 'GET',
+                        dataType: "json",
+                        success: function (data) {
+                            _that.categories = data
+                        }
+                    })
+                },
+                addCategory: function () {
+                    let that = this
+                    $.ajax({
+                        url: '/app/movie/category/add',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({"name": that.categoryName}),
+                        dataType: "json",
+                        success: function (data) {
+                            $('#myModal').modal('toggle')
+                            that.search()
+                        },
+                        error: function (resp) {
+                            alert(resp.responseJSON.msg)
+                        }
+                    })
+                },
+                modifyCategory: function () {
+                    let that = this
+
+                    $.ajax({
+                        url: '/app/movie/category/modify',
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            "id": that.modifyCategoryInfo.id,
+                            "name": that.modifyCategoryInfo.name,
+                        }),
+                        dataType: "json",
+                        success: function (data) {
+                            $('#modifyModel').modal('toggle')
+                            that.search()
+                        },
+                        error: function (resp) {
+                            alert(resp.responseJSON.msg)
+                        }
+                    })
+                },
+                deleteCategoryInfo: function (id) {
+                    let that = this
+
+                    $.ajax({
+                        url: '/app/movie/category/delete/' + id,
+                        type: 'DELETE',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            that.search()
+                        },
+                        error: function (resp) {
+                            alert(resp.responseJSON.msg)
+                        }
+                    })
+                }
             }
-        })
-    })
-</script>
+        });
+
+        app.mount("#app");
+
+
+        $("div.panel-collapse").removeClass("in");
+        $("#collapseTwo").addClass("in");
+    </script>
+{% endblock %}

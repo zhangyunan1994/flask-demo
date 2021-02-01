@@ -1,0 +1,31 @@
+{% extends "app/layout.html" %}
+{% block content %}
+    <div class="container" id="app">
+
+        <ol class="breadcrumb">
+            <li>影片管理</li>
+            <li class="active">电影管理</li>
+        </ol>
+
+        <el-button>{{ message }}</el-button>
+
+    </div>
+    <script>
+
+
+
+        const App = {
+            data() {
+              return {
+                message: "Hello Element Plus",
+              };
+            },
+          };
+          const app = Vue.createApp(App);
+          app.use(ElementPlus);
+          app.mount("#app");
+
+        $("div.panel-collapse").removeClass("in");
+        $("#collapseTwo").addClass("in");
+    </script>
+{% endblock %}

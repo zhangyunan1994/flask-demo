@@ -1,9 +1,10 @@
-from flask import Flask, session, render_template, request, abort
+from flask import Flask, session, render_template, request
 from flask_cors import *
 
 from config import *
 from exts.exts import db
 from models.models import User
+from views.movie_manager import movie_manager
 from views.user_manager import user_manager
 
 database_config = get_database_info("dev")
@@ -16,6 +17,7 @@ app.secret_key = b'_5#y2L"F4Q8z/'
 app.config["SQLALCHEMY_DATABASE_URI"] = f'mysql+pymysql://{ database_config.User }:{database_config.Password}@{database_config.Host}:{database_config.Port}/{database_config.Name}'
 
 app.register_blueprint(user_manager)
+app.register_blueprint(movie_manager)
 
 db.init_app(app)
 
@@ -69,12 +71,12 @@ def app_index_layer():
     return render_template('login.html')
 
 
-@app.before_request
-def before_user():
-    if request.path in ['/', '/toLogin', '/login']:
-        return
-    if 'current_user_id' not in session:
-        abort(401)
+# @app.before_request
+# def before_user():
+#     if request.path in ['/', '/toLogin', '/login']:
+#         return
+#     if 'current_user_id' not in session:
+#         abort(401)
 
 
 if __name__ == '__main__':
