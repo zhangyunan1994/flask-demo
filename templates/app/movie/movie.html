@@ -1,176 +1,176 @@
 {% extends "app/layout.html" %}
 {% block content %}
-    <div class="container" id="app">
+  <div class="container" id="app">
 
-        <ol class="breadcrumb">
-            <li>影片管理</li>
-            <li class="active">电影管理</li>
-        </ol>
+    <ol class="breadcrumb">
+      <li>影片管理</li>
+      <li class="active">电影管理</li>
+    </ol>
 
-        <el-form :inline="true" :model="formInline" class="demo-form-inline">
-            <el-form-item label="电影名称">
-                <el-input v-model="searchParam.name" placeholder="电影名称"></el-input>
+    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form-item label="电影名称">
+        <el-input v-model="searchParam.name" placeholder="电影名称"></el-input>
+      </el-form-item>
+      <el-form-item label="分类">
+        <el-select v-model="searchParam.category_id" placeholder="类别">
+          <el-option v-for="category in categories" :label="category.name" :value="category.id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="search">查询</el-button>
+        <el-button type="primary" @click="saveOp = dialogFormVisible = true">添加</el-button>
+      </el-form-item>
+    </el-form>
+
+    <el-table
+        :data="movies"
+        stripe
+        style="width: 100%">
+      <el-table-column type="expand">
+        <template #default="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="商品名称">
+              <span>${ props.row.name }</span>
             </el-form-item>
-            <el-form-item label="分类">
-                <el-select v-model="searchParam.category_id" placeholder="类别">
-                    <el-option v-for="category in categories" :label="category.name" :value="category.id"></el-option>
-                </el-select>
+            <el-form-item label="所属店铺">
+              <span>${ props.row.shop }}</span>
             </el-form-item>
-            <el-form-item>
-                <el-button type="primary" @click="search">查询</el-button>
-                <el-button type="primary" @click="saveOp = dialogFormVisible = true">添加</el-button>
+            <el-form-item label="商品 ID">
+              <span>${ props.row.id }}</span>
             </el-form-item>
-        </el-form>
+            <el-form-item label="店铺 ID">
+              <span>${ props.row.shopId }}</span>
+            </el-form-item>
+            <el-form-item label="商品分类">
+              <span>${ props.row.category }}</span>
+            </el-form-item>
+            <el-form-item label="店铺地址">
+              <span>${ props.row.address }}</span>
+            </el-form-item>
+            <el-form-item label="商品描述">
+              <span>${ props.row.desc }}</span>
+            </el-form-item>
 
-        <el-table
-                :data="movies"
-                stripe
-                style="width: 100%">
-            <el-table-column type="expand">
-                <template #default="props">
-                    <el-form label-position="left" inline class="demo-table-expand">
-                        <el-form-item label="商品名称">
-                            <span>${ props.row.name }</span>
-                        </el-form-item>
-                        <el-form-item label="所属店铺">
-                            <span>${ props.row.shop }}</span>
-                        </el-form-item>
-                        <el-form-item label="商品 ID">
-                            <span>${ props.row.id }}</span>
-                        </el-form-item>
-                        <el-form-item label="店铺 ID">
-                            <span>${ props.row.shopId }}</span>
-                        </el-form-item>
-                        <el-form-item label="商品分类">
-                            <span>${ props.row.category }}</span>
-                        </el-form-item>
-                        <el-form-item label="店铺地址">
-                            <span>${ props.row.address }}</span>
-                        </el-form-item>
-                        <el-form-item label="商品描述">
-                            <span>${ props.row.desc }}</span>
-                        </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column
+          label="#"
+          prop="id">
+      </el-table-column>
+      <el-table-column
+          label="名称"
+          prop="name">
+      </el-table-column>
+      <el-table-column
+          label="简介"
+          prop="description">
+      </el-table-column>
+      <el-table-column
+          fixed="right"
+          label="操作"
+          width="120">
+        <template #default="scope">
+          <el-button
+              @click.native.prevent="movie=scope.row,saveOp = false,dialogFormVisible = true"
+              type="text"
+              size="small">
+            编辑
+          </el-button>
+        </template>
+      </el-table-column>
+    </el-table>
 
-                    </el-form>
-                </template>
-            </el-table-column>
-            <el-table-column
-                    label="#"
-                    prop="id">
-            </el-table-column>
-            <el-table-column
-                    label="名称"
-                    prop="name">
-            </el-table-column>
-            <el-table-column
-                    label="简介"
-                    prop="description">
-            </el-table-column>
-            <el-table-column
-                    fixed="right"
-                    label="操作"
-                    width="120">
-                <template #default="scope">
-                    <el-button
-                            @click.native.prevent="movie=scope.row,saveOp = false,dialogFormVisible = true"
-                            type="text"
-                            size="small">
-                        编辑
-                    </el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-
-        <el-dialog title="电影" v-model="dialogFormVisible">
-            <el-form :model="movie">
-                <el-form-item label="名称" :label-width="formLabelWidth">
-                    <el-input v-model="movie.name" autocomplete="off"></el-input>
-                </el-form-item>
-                <el-form-item label="类别" :label-width="formLabelWidth">
-                    <el-select v-model="movie.category_id" placeholder="类别">
-                        <el-option v-for="category in categories" :label="category.name"
-                                   :value="category.id"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="简介" :label-width="formLabelWidth">
-                    <el-input v-model="movie.description" autocomplete="off"></el-input>
-                </el-form-item>
-                <el-form-item label="豆瓣分数" :label-width="formLabelWidth">
-                    <el-input v-model="movie.douban_score" autocomplete="off"></el-input>
-                </el-form-item>
-                <el-form-item label="海报地址" :label-width="formLabelWidth">
-                    <el-input v-model="movie.img_url" autocomplete="off"></el-input>
-                </el-form-item>
-                <el-form-item label="资源地址" :label-width="formLabelWidth">
-                    <el-input v-model="movie.resource_url" autocomplete="off"></el-input>
-                </el-form-item>
-                <el-form-item label="上映时间" :label-width="formLabelWidth">
-                    <el-input v-model="movie.release_time" autocomplete="off"></el-input>
-                </el-form-item>
-            </el-form>
-            <template #footer>
+    <el-dialog title="电影" v-model="dialogFormVisible">
+      <el-form :model="movie">
+        <el-form-item label="名称" :label-width="formLabelWidth">
+          <el-input v-model="movie.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="类别" :label-width="formLabelWidth">
+          <el-select v-model="movie.category_id" placeholder="类别">
+            <el-option v-for="category in categories" :label="category.name"
+                       :value="category.id"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="简介" :label-width="formLabelWidth">
+          <el-input v-model="movie.description" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="豆瓣分数" :label-width="formLabelWidth">
+          <el-input v-model="movie.douban_score" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="海报地址" :label-width="formLabelWidth">
+          <el-input v-model="movie.img_url" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="资源地址" :label-width="formLabelWidth">
+          <el-input v-model="movie.resource_url" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="上映时间" :label-width="formLabelWidth">
+          <el-input v-model="movie.release_time" autocomplete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
     <span class="dialog-footer">
       <el-button @click="dialogFormVisible = false">取 消</el-button>
       <el-button type="primary" @click="addOrModify">确 定</el-button>
     </span>
-            </template>
-        </el-dialog>
-    </div>
-    <script>
+      </template>
+    </el-dialog>
+  </div>
+  <script>
 
-        let instance = axios.create();
+    let instance = axios.create();
 
 
-        instance.defaults.timeout = 500;
+    instance.defaults.timeout = 500;
 
-        const App = {
-            delimiters: ['${', '}'],
-            data() {
-                return {
-                    formLabelWidth: '120px',
-                    dialogFormVisible: false,
-                    saveOp: true,
-                    movies: [],
-                    categories: [],
-                    movie: {},
-                    searchParam: {}
-                };
-            },
-            methods: {
-                addOrModify: function () {
-                    let that = this
-                    let url = this.saveOp ? "/app/movie/movie/add" : "/app/movie/movie/modify"
-                    instance.post(url, that.movie)
-                        .then(function (response) {
-                            that.movie = {}
-                            that.dialogFormVisible = false
-                            that.search()
-                        });
-                },
-                search: function () {
-                    let that = this
-                    instance.get('/app/movie/movie/search')
-                        .then(function (response) {
-                            that.movies = response.data.data
-                        });
-                }
-            },
-            mounted: function () {
-                this.search()
-                let that = this
-                instance.get('/app/movie/category/list')
-                    .then(function (response) {
-                        that.categories = response.data
-                    });
-            }
-
+    const App = {
+      delimiters: ['${', '}'],
+      data() {
+        return {
+          formLabelWidth: '120px',
+          dialogFormVisible: false,
+          saveOp: true,
+          movies: [],
+          categories: [],
+          movie: {},
+          searchParam: {}
         };
+      },
+      methods: {
+        addOrModify: function () {
+          let that = this
+          let url = this.saveOp ? "/app/movie/movie/add" : "/app/movie/movie/modify"
+          instance.post(url, that.movie)
+              .then(function (response) {
+                that.movie = {}
+                that.dialogFormVisible = false
+                that.search()
+              });
+        },
+        search: function () {
+          let that = this
+          instance.get('/app/movie/movie/search')
+              .then(function (response) {
+                that.movies = response.data.data
+              });
+        }
+      },
+      mounted: function () {
+        this.search()
+        let that = this
+        instance.get('/app/movie/category/list')
+            .then(function (response) {
+              that.categories = response.data
+            });
+      }
 
-        const app = Vue.createApp(App);
-        app.use(ElementPlus);
-        app.mount("#app");
+    };
 
-        $("div.panel-collapse").removeClass("in");
-        $("#collapseTwo").addClass("in");
-    </script>
+    const app = Vue.createApp(App);
+    app.use(ElementPlus);
+    app.mount("#app");
+
+    $("div.panel-collapse").removeClass("in");
+    $("#collapseTwo").addClass("in");
+  </script>
 {% endblock %}
