@@ -35,11 +35,12 @@ create table movie_category (
 
 select * from movie_category;
 
+drop table if exists movie;
 create table movie (
    id int unsigned not null auto_increment primary key,
    category_id int unsigned not null comment '分类id',
    img_url varchar(150) null comment '影片还报地址',
-   description varchar(200) null comment '简介',
+   description varchar(1200) null comment '简介',
    douban_score decimal(5,2) default 0.0 comment '豆瓣分数',
    release_time datetime comment '上映时间',
    resource_url varchar(200) comment '资源地址',
