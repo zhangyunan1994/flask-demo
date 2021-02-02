@@ -61,6 +61,9 @@
     
 ```pip install -r requirements.txt -i "https://pypi.doubanio.com/simple/"```
 
+**2. 初始化数据库**
+
+数据库使用的 MySQL, 初始化语句在 `docs/schema.sql` 里，如果要修改用户名密码，可以修改 `conf/app.ini` 文件
 
 ### 使用说明
 
@@ -73,3 +76,12 @@
 1.  新建 feature_xxx 分支
 1.  提交代码
 1.  新建 Pull Request
+
+## 教程
+
+1. [Git 基础](https://www.liaoxuefeng.com/wiki/896043488029600)
+1. [Python 基础](https://www.liaoxuefeng.com/wiki/1016959663602400)
+1. [简单的 MySQL 基础](https://www.liaoxuefeng.com/wiki/1177760294764384)
+1. [Bootstrap 参考](https://v3.bootcss.com/)
+1. [jQuery 教程](https://www.w3school.com.cn/jquery/index.asp)
+1. [Axios 简单使用](https://blog.csdn.net/zyndev/article/details/107215871)
