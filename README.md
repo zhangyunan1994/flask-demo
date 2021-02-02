@@ -82,6 +82,12 @@
 1. [Git 基础](https://www.liaoxuefeng.com/wiki/896043488029600)
 1. [Python 基础](https://www.liaoxuefeng.com/wiki/1016959663602400)
 1. [简单的 MySQL 基础](https://www.liaoxuefeng.com/wiki/1177760294764384)
+1. [Flask 入门](http://www.pythondoc.com/flask/)
+1. [Flask-SQLAlchemy 快速入门](http://www.pythondoc.com/flask-sqlalchemy/quickstart.html)
 1. [Bootstrap 参考](https://v3.bootcss.com/)
 1. [jQuery 教程](https://www.w3school.com.cn/jquery/index.asp)
 1. [Axios 简单使用](https://blog.csdn.net/zyndev/article/details/107215871)
+
+## 常用学习网站
+
+1. [Python 中文学习大本营 (主要是Flask 相关教程) ](http://www.pythondoc.com/)
